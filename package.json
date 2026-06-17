@@ -12,7 +12,7 @@
     "actions"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "validate:schema": "node scripts/validate-schema.mjs"

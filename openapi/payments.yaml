@@ -1,0 +1,81 @@
+openapi: 3.1.0
+info:
+  title: SignalPay Payments API
+  version: 0.1.0
+  summary: Contract for payment authorization, capture, and settlement status.
+servers:
+  - url: https://api.signalpay.dev
+paths:
+  /payments/{paymentId}:
+    get:
+      operationId: getPayment
+      summary: Retrieve the current payment state.
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^pay_"
+      responses:
+        "200":
+          description: Payment state.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+  /payments/{paymentId}/capture:
+    post:
+      operationId: capturePayment
+      summary: Capture an authorized payment.
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^pay_"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Capture result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+components:
+  schemas:
+    PaymentStatus:
+      type: string
+      enum:
+        - pending
+        - authorized
+        - captured
+        - failed
+    Payment:
+      type: object
+      required:
+        - paymentId
+        - customerId
+        - amount
+        - currency
+        - status
+      properties:
+        paymentId:
+          type: string
+          pattern: "^pay_"
+        customerId:
+          type: string
+          pattern: "^cus_"
+        amount:
+          type: integer
+          minimum: 1
+        currency:
+          type: string
+          enum: [USD]
+        status:
+          $ref: "#/components/schemas/PaymentStatus"

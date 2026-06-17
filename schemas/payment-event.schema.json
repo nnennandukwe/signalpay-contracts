@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/nnennandukwe/signalpay-contracts/main/schemas/payment-event.schema.json",
+  "title": "SignalPayPaymentEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "paymentId",
+    "customerId",
+    "amount",
+    "currency",
+    "status",
+    "occurredAt"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "payment.pending",
+        "payment.authorized",
+        "payment.captured",
+        "payment.failed"
+      ]
+    },
+    "paymentId": {
+      "type": "string",
+      "pattern": "^pay_"
+    },
+    "customerId": {
+      "type": "string",
+      "pattern": "^cus_"
+    },
+    "amount": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "currency": {
+      "type": "string",
+      "enum": ["USD"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "authorized", "captured", "failed"]
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

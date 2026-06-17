@@ -1,0 +1,27 @@
+name: Publish SignalPay image
+description: Build and publish a service image for SignalPay workloads.
+inputs:
+  service:
+    description: Service name to build.
+    required: true
+  image:
+    description: Image repository to publish to.
+    required: true
+outputs:
+  image_digest:
+    description: Digest of the published image.
+    value: ${{ steps.publish.outputs.image_digest }}
+runs:
+  using: composite
+  steps:
+    - name: Build image
+      shell: bash
+      run: |
+        docker build -t "${{ inputs.image }}:${{ github.sha }}" .
+    - name: Publish image
+      id: publish
+      shell: bash
+      run: |
+        docker push "${{ inputs.image }}:${{ github.sha }}"
+        digest="$(docker inspect --format='{{index .RepoDigests 0}}' "${{ inputs.image }}:${{ github.sha }}" | cut -d@ -f2)"
+        echo "image_digest=${digest}" >> "$GITHUB_OUTPUT"
