@@ -1,0 +1,24 @@
+{
+  "name": "@signalpay/contracts",
+  "version": "0.1.0",
+  "description": "Shared API, event, and client contracts for SignalPay payment services.",
+  "type": "module",
+  "main": "dist/client.js",
+  "types": "dist/client.d.ts",
+  "files": [
+    "dist",
+    "openapi",
+    "schemas",
+    "actions"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "validate:schema": "node scripts/validate-schema.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
+  }
+}
