@@ -41,7 +41,7 @@
     },
     "status": {
       "type": "string",
-      "enum": ["pending", "authorized", "captured", "failed"]
+      "enum": ["pending", "authorized", "under_review", "captured", "failed"]
     },
     "occurredAt": {
       "type": "string",

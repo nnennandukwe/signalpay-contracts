@@ -1,6 +1,7 @@
 export const PAYMENT_STATUSES = [
   "pending",
   "authorized",
+  "under_review",
   "captured",
   "failed"
 ] as const;

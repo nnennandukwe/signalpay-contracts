@@ -54,6 +54,7 @@ components:
       enum:
         - pending
         - authorized
+        - under_review
         - captured
         - failed
     Payment:

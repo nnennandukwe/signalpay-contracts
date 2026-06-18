@@ -26,6 +26,7 @@ describe("SignalPay shared contracts", () => {
     expect(PAYMENT_STATUSES).toEqual([
       "pending",
       "authorized",
+      "under_review",
       "captured",
       "failed"
     ]);
