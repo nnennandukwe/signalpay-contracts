@@ -1,11 +1,29 @@
 export const PAYMENT_STATUSES = [
   "pending",
   "authorized",
+  "under_review",
   "captured",
   "failed"
 ] as const;
 
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
+export const PAYMENT_REVIEW_REASONS = [
+  "velocity_check",
+  "manual_kyc",
+  "duplicate_capture",
+  "sanctions_review"
+] as const;
+
+export type PaymentReviewReason = (typeof PAYMENT_REVIEW_REASONS)[number];
+
+export type PaymentReviewHold = {
+  reviewId: string;
+  reason: PaymentReviewReason;
+  requestedAt: string;
+  expiresAt?: string;
+  note?: string;
+};
 
 export type SessionPrincipal = {
   subject: string;
@@ -19,11 +37,20 @@ export type PaymentEventInput = {
   amount: number;
   currency: "USD";
   status: PaymentStatus;
+  review?: PaymentReviewHold;
 };
 
 export type PaymentEvent = PaymentEventInput & {
   type: `payment.${PaymentStatus}`;
   occurredAt: string;
+};
+
+export type CaptureBlockedResponse = {
+  code: "capture_blocked";
+  reason: "payment_under_review" | "payment_not_authorized";
+  message: string;
+  paymentId: string;
+  review?: PaymentReviewHold;
 };
 
 export function verifySession(
@@ -48,6 +75,25 @@ export function verifySession(
   };
 }
 
+export function canCapturePayment(status: PaymentStatus): boolean {
+  return status === "authorized";
+}
+
+export function buildCaptureBlockedResponse(
+  paymentId: string,
+  status: PaymentStatus,
+  review?: PaymentReviewHold
+): CaptureBlockedResponse {
+  return {
+    code: "capture_blocked",
+    reason:
+      status === "under_review" ? "payment_under_review" : "payment_not_authorized",
+    message: `Payment ${paymentId} cannot be captured while ${status}`,
+    paymentId,
+    review
+  };
+}
+
 export function buildPaymentEvent(input: PaymentEventInput): PaymentEvent {
   return {
     type: `payment.${input.status}`,
@@ -56,6 +102,16 @@ export function buildPaymentEvent(input: PaymentEventInput): PaymentEvent {
     amount: input.amount,
     currency: input.currency,
     status: input.status,
+    review: input.review,
     occurredAt: new Date().toISOString()
   };
+}
+
+export function buildReviewHoldEvent(
+  input: Omit<PaymentEventInput, "status"> & { review: PaymentReviewHold }
+): PaymentEvent {
+  return buildPaymentEvent({
+    ...input,
+    status: "under_review"
+  });
 }
