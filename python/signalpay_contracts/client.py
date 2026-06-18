@@ -4,7 +4,18 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Literal, TypedDict
 
-PaymentStatus = Literal["pending", "authorized", "captured", "failed"]
+PaymentStatus = Literal["pending", "authorized", "under_review", "captured", "failed"]
+PaymentReviewReason = Literal["velocity_check", "manual_kyc", "duplicate_capture"]
+
+
+class PaymentReviewHoldRequired(TypedDict):
+    reviewId: str
+    reason: PaymentReviewReason
+    requestedAt: str
+
+
+class PaymentReviewHold(PaymentReviewHoldRequired, total=False):
+    expiresAt: str
 
 
 @dataclass(frozen=True)

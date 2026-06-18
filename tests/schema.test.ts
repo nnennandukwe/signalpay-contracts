@@ -20,4 +20,19 @@ describe("payment event schema", () => {
       pattern: "^cus_"
     });
   });
+
+  it("allows review context on payment events", () => {
+    expect(paymentEventSchema.properties.status.enum).toContain("under_review");
+    expect(paymentEventSchema.properties.review).toEqual({
+      $ref: "#/$defs/paymentReviewHold"
+    });
+  });
+
+  it("documents manual review reason values", () => {
+    expect(paymentEventSchema.$defs.paymentReviewReason.enum).toEqual([
+      "velocity_check",
+      "manual_kyc",
+      "sanctions_review"
+    ]);
+  });
 });
