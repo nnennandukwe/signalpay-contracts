@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: SignalPay Payments API
   version: 0.1.0
-  summary: Contract for payment authorization, capture, and settlement status.
+  summary: Contract for payment authorization, capture, review holds, and settlement status.
 servers:
   - url: https://api.signalpay.dev
 paths:
@@ -47,6 +47,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment"
+        "409":
+          description: Payment cannot be captured while review is required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaptureBlockedResponse"
+  /payments/{paymentId}/review-holds:
+    post:
+      operationId: createPaymentReviewHold
+      summary: Put a payment into manual review.
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^pay_"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentReviewHoldRequest"
+      responses:
+        "201":
+          description: Review hold created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentReviewHoldResponse"
 components:
   schemas:
     PaymentStatus:
@@ -54,8 +84,75 @@ components:
       enum:
         - pending
         - authorized
+        - under_review
         - captured
         - failed
+    PaymentReviewReason:
+      type: string
+      enum:
+        - velocity_check
+        - duplicate_capture
+        - sanctions_review
+    PaymentReviewHold:
+      type: object
+      required:
+        - reviewId
+        - reason
+        - requestedAt
+      properties:
+        reviewId:
+          type: string
+          pattern: "^rev_"
+        reason:
+          $ref: "#/components/schemas/PaymentReviewReason"
+        requestedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        note:
+          type: string
+          maxLength: 240
+    PaymentReviewHoldRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+      properties:
+        reason:
+          $ref: "#/components/schemas/PaymentReviewReason"
+        expiresAt:
+          type: string
+          format: date-time
+        note:
+          type: string
+          maxLength: 240
+    PaymentReviewHoldResponse:
+      type: object
+      required:
+        - payment
+        - review
+      properties:
+        payment:
+          $ref: "#/components/schemas/Payment"
+        review:
+          $ref: "#/components/schemas/PaymentReviewHold"
+    CaptureBlockedResponse:
+      type: object
+      required:
+        - code
+        - message
+        - paymentId
+      properties:
+        code:
+          type: string
+          enum: [capture_blocked]
+        message:
+          type: string
+        paymentId:
+          type: string
+          pattern: "^pay_"
     Payment:
       type: object
       required:
@@ -64,6 +161,7 @@ components:
         - amount
         - currency
         - status
+        - review
       properties:
         paymentId:
           type: string
@@ -79,3 +177,5 @@ components:
           enum: [USD]
         status:
           $ref: "#/components/schemas/PaymentStatus"
+        review:
+          $ref: "#/components/schemas/PaymentReviewHold"

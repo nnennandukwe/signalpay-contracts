@@ -13,6 +13,38 @@
     "status",
     "occurredAt"
   ],
+  "$defs": {
+    "paymentReviewReason": {
+      "type": "string",
+      "enum": ["velocity_check", "manual_kyc", "sanctions_review"]
+    },
+    "paymentReviewHold": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewId", "reason", "requestedAt"],
+      "properties": {
+        "reviewId": {
+          "type": "string",
+          "pattern": "^rev_"
+        },
+        "reason": {
+          "$ref": "#/$defs/paymentReviewReason"
+        },
+        "requestedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 240
+        }
+      }
+    }
+  },
   "properties": {
     "type": {
       "type": "string",
@@ -41,7 +73,10 @@
     },
     "status": {
       "type": "string",
-      "enum": ["pending", "authorized", "captured", "failed"]
+      "enum": ["pending", "authorized", "under_review", "captured", "failed"]
+    },
+    "review": {
+      "$ref": "#/$defs/paymentReviewHold"
     },
     "occurredAt": {
       "type": "string",
