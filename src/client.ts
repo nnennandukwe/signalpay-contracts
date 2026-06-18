@@ -49,6 +49,7 @@ export type CaptureBlockedResponse = {
   code: "capture_blocked";
   reason: "payment_under_review" | "payment_not_authorized";
   message: string;
+  paymentId: string;
   review?: PaymentReviewHold;
 };
 
@@ -75,7 +76,7 @@ export function verifySession(
 }
 
 export function canCapturePayment(status: PaymentStatus): boolean {
-  return status === "authorized" || status === "under_review";
+  return status === "authorized";
 }
 
 export function buildCaptureBlockedResponse(
@@ -88,6 +89,7 @@ export function buildCaptureBlockedResponse(
     reason:
       status === "under_review" ? "payment_under_review" : "payment_not_authorized",
     message: `Payment ${paymentId} cannot be captured while ${status}`,
+    paymentId,
     review
   };
 }
