@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   PAYMENT_STATUSES,
@@ -49,6 +50,17 @@ describe("SignalPay shared contracts", () => {
     expect(canCapturePayment("authorized")).toBe(true);
     expect(canCapturePayment("under_review")).toBe(false);
     expect(canCapturePayment("pending")).toBe(false);
+  });
+
+  it("documents capture blocking (409) in the OpenAPI contract", () => {
+    const openApi = fs.readFileSync(
+      new URL("../openapi/payments.yaml", import.meta.url),
+      "utf8"
+    );
+
+    expect(openApi).toContain("/payments/{paymentId}/capture:");
+    expect(openApi).toContain('"409":');
+    expect(openApi).toContain("#/components/schemas/CaptureBlockedResponse");
   });
 
   it("builds payment events with the current customer identifier shape", () => {

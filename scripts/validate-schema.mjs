@@ -86,6 +86,35 @@ function openApiRequiredFields(schemaName) {
   return fields;
 }
 
+function openApiOperationLines(path, method) {
+  const lines = openApi.split(/\r?\n/);
+  const pathLine = `  ${path}:`;
+  const methodLine = `    ${method}:`;
+
+  const pathStart = lines.findIndex((line) => line === pathLine);
+  if (pathStart === -1) {
+    throw new Error(`openapi/payments.yaml must define ${method.toUpperCase()} ${path}`);
+  }
+
+  const methodStart = lines.findIndex(
+    (line, index) => index > pathStart && line === methodLine
+  );
+  if (methodStart === -1) {
+    throw new Error(`openapi/payments.yaml must define ${method.toUpperCase()} ${path}`);
+  }
+
+  const end = lines.findIndex(
+    (line, index) => index > methodStart && /^\s{2}\/[^\s]+:$/.test(line)
+  );
+
+  return lines.slice(methodStart, end === -1 ? lines.length : end);
+}
+
+function openApiOperationHasResponse(path, method, statusCode) {
+  const operationLines = openApiOperationLines(path, method);
+  return operationLines.some((line) => line.trim() === `"${statusCode}":`);
+}
+
 const required = new Set(schema.required ?? []);
 for (const field of [
   "type",
@@ -135,6 +164,12 @@ assertArrayEqual(
   ["code", "reason", "message", "paymentId"],
   "openapi/payments.yaml CaptureBlockedResponse required fields"
 );
+
+if (!openApiOperationHasResponse("/payments/{paymentId}/capture", "post", 409)) {
+  throw new Error(
+    "openapi/payments.yaml POST /payments/{paymentId}/capture must document a 409 CaptureBlockedResponse"
+  );
+}
 
 if (openApiRequiredFields("Payment").includes("review")) {
   throw new Error("openapi/payments.yaml Payment must not require review for every status");
