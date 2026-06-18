@@ -67,6 +67,19 @@ def build_payment_event(
     status: PaymentStatus,
     review: Optional[PaymentReviewHold] = None,
 ) -> PaymentEvent:
+    """Build a payment lifecycle event payload.
+
+    Args:
+        payment_id: SignalPay payment identifier.
+        customer_id: Customer identifier associated with the payment.
+        amount: Amount in minor units.
+        currency: Payment currency.
+        status: Current payment status.
+        review: Optional manual review hold details.
+
+    Returns:
+        The payment event dictionary.
+    """
     event: PaymentEvent = {
         "type": f"payment.{status}",
         "paymentId": payment_id,
@@ -89,6 +102,7 @@ def build_review_hold_event(
     currency: Literal["USD"],
     review: PaymentReviewHold,
 ) -> PaymentEvent:
+    """Build a payment event for placing a payment under manual review."""
     return build_payment_event(
         payment_id=payment_id,
         customer_id=customer_id,
