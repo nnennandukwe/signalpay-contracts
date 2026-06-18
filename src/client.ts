@@ -84,27 +84,37 @@ export function buildCaptureBlockedResponse(
   status: PaymentStatus,
   review?: PaymentReviewHold
 ): CaptureBlockedResponse {
-  return {
+  const response: CaptureBlockedResponse = {
     code: "capture_blocked",
     reason:
       status === "under_review" ? "payment_under_review" : "payment_not_authorized",
     message: `Payment ${paymentId} cannot be captured while ${status}`,
-    paymentId,
-    review
+    paymentId
   };
+
+  if (review !== undefined) {
+    response.review = review;
+  }
+
+  return response;
 }
 
 export function buildPaymentEvent(input: PaymentEventInput): PaymentEvent {
-  return {
+  const event: PaymentEvent = {
     type: `payment.${input.status}`,
     paymentId: input.paymentId,
     customerId: input.customerId,
     amount: input.amount,
     currency: input.currency,
     status: input.status,
-    review: input.review,
     occurredAt: new Date().toISOString()
   };
+
+  if (input.review !== undefined) {
+    event.review = input.review;
+  }
+
+  return event;
 }
 
 export function buildReviewHoldEvent(

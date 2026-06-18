@@ -71,6 +71,7 @@ describe("SignalPay shared contracts", () => {
     expect(event.occurredAt).toMatch(
       /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/
     );
+    expect("review" in event).toBe(false);
   });
 
   it("builds review hold events with operator context", () => {
@@ -115,5 +116,17 @@ describe("SignalPay shared contracts", () => {
         requestedAt: "2026-06-18T16:00:00Z"
       }
     });
+  });
+
+  it("omits review from capture blocked responses when absent", () => {
+    const response = buildCaptureBlockedResponse("pay_9x8", "pending");
+
+    expect(response).toEqual({
+      code: "capture_blocked",
+      reason: "payment_not_authorized",
+      message: "Payment pay_9x8 cannot be captured while pending",
+      paymentId: "pay_9x8"
+    });
+    expect("review" in response).toBe(false);
   });
 });

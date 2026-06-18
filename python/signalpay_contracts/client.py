@@ -67,6 +67,7 @@ def build_payment_event(
     status: PaymentStatus,
     review: Optional[PaymentReviewHold] = None,
 ) -> PaymentEvent:
+    """Build a payment event, including review metadata when provided."""
     event: PaymentEvent = {
         "type": f"payment.{status}",
         "paymentId": payment_id,
@@ -89,6 +90,7 @@ def build_review_hold_event(
     currency: Literal["USD"],
     review: PaymentReviewHold,
 ) -> PaymentEvent:
+    """Build an under-review payment event with review metadata."""
     return build_payment_event(
         payment_id=payment_id,
         customer_id=customer_id,
