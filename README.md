@@ -19,7 +19,7 @@ Current compatibility commitments:
 - Payment events expose `customerId` as a top-level field.
 - Payment statuses are `pending`, `authorized`, `captured`, and `failed`.
 - The shared image publishing action exposes `image_digest` as its output.
-- Service sessions are verified for the `payments-api` audience.
+- Service sessions are verified with an explicit request object containing the session token and target audience.
 
 ## Validation
 

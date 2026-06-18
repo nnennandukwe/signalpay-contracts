@@ -14,6 +14,12 @@ class SessionPrincipal:
     scopes: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class SessionVerificationRequest:
+    token: str
+    audience: str
+
+
 class PaymentEvent(TypedDict):
     type: str
     paymentId: str
@@ -24,7 +30,10 @@ class PaymentEvent(TypedDict):
     occurredAt: str
 
 
-def verify_session(token: str, audience: Literal["payments-api"]) -> SessionPrincipal:
+def verify_session(request: SessionVerificationRequest) -> SessionPrincipal:
+    token = request.token
+    audience = request.audience
+
     if not token.startswith("sp_live_"):
         raise ValueError("session token must use the live SignalPay token prefix")
 
