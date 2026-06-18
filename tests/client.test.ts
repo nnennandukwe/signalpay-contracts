@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   PAYMENT_STATUSES,
   PAYMENT_REVIEW_REASONS,
-  buildCaptureBlockedResponse,
   buildPaymentEvent,
   buildReviewHoldEvent,
   canCapturePayment,
@@ -98,41 +97,4 @@ describe("SignalPay shared contracts", () => {
     });
   });
 
-  it("builds capture blocked responses for reviewed payments", () => {
-    const response = buildCaptureBlockedResponse("pay_9x8", "under_review", {
-      reviewId: "rev_velocity_1",
-      reason: "velocity_check",
-      requestedAt: "2026-06-18T16:00:00Z"
-    });
-
-    expect(response).toEqual({
-      code: "capture_blocked",
-      reason: "payment_under_review",
-      message: "Payment pay_9x8 cannot be captured in status under_review",
-      paymentId: "pay_9x8",
-      review: {
-        reviewId: "rev_velocity_1",
-        reason: "velocity_check",
-        requestedAt: "2026-06-18T16:00:00Z"
-      }
-    });
-  });
-
-  it("omits review from capture blocked responses when absent", () => {
-    const response = buildCaptureBlockedResponse("pay_9x8", "pending");
-
-    expect(response).toEqual({
-      code: "capture_blocked",
-      reason: "payment_not_authorized",
-      message: "Payment pay_9x8 cannot be captured in status pending",
-      paymentId: "pay_9x8"
-    });
-    expect("review" in response).toBe(false);
-  });
-
-  it("rejects blocked responses for capturable payments", () => {
-    expect(() =>
-      buildCaptureBlockedResponse("pay_9x8", "authorized" as never)
-    ).toThrow(/authorized/);
-  });
 });

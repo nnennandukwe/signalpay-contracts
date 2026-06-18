@@ -47,36 +47,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment"
-        "409":
-          description: Payment cannot be captured while review is required.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/CaptureBlockedResponse"
-  /payments/{paymentId}/review-holds:
-    post:
-      operationId: createPaymentReviewHold
-      summary: Put a payment into manual review.
-      parameters:
-        - name: paymentId
-          in: path
-          required: true
-          schema:
-            type: string
-            pattern: "^pay_"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/PaymentReviewHoldRequest"
-      responses:
-        "201":
-          description: Review hold created.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaymentReviewHoldResponse"
 components:
   schemas:
     PaymentStatus:
@@ -116,48 +86,7 @@ components:
         note:
           type: string
           maxLength: 240
-    PaymentReviewHoldRequest:
-      type: object
-      additionalProperties: false
-      required:
-        - reason
-      properties:
-        reason:
-          $ref: "#/components/schemas/PaymentReviewReason"
-        expiresAt:
-          type: string
-          format: date-time
-        note:
-          type: string
-          maxLength: 240
-    PaymentReviewHoldResponse:
-      type: object
-      required:
-        - payment
-      properties:
-        payment:
-          $ref: "#/components/schemas/Payment"
-    CaptureBlockedResponse:
-      type: object
-      required:
-        - code
-        - reason
-        - message
-        - paymentId
-      properties:
-        code:
-          type: string
-          enum: [capture_blocked]
-        reason:
-          type: string
-          enum: [payment_under_review, payment_not_authorized]
-        message:
-          type: string
-        paymentId:
-          type: string
-          pattern: "^pay_"
-        review:
-          $ref: "#/components/schemas/PaymentReviewHold"
+
     Payment:
       type: object
       required:

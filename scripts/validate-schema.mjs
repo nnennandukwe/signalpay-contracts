@@ -178,21 +178,6 @@ assertArrayEqual(
   expectedReviewReasons,
   "openapi/payments.yaml PaymentReviewReason enum"
 );
-assertArrayEqual(
-  openApiRequiredFields("CaptureBlockedResponse"),
-  ["code", "reason", "message", "paymentId"],
-  "openapi/payments.yaml CaptureBlockedResponse required fields"
-);
-assertArrayIncludes(
-  openApiResponseCodes("/payments/{paymentId}/capture", "post"),
-  "409",
-  "openapi/payments.yaml capture response codes"
-);
-assertArrayEqual(
-  openApiRequiredFields("PaymentReviewHoldResponse"),
-  ["payment"],
-  "openapi/payments.yaml PaymentReviewHoldResponse required fields"
-);
 
 if (openApiRequiredFields("Payment").includes("review")) {
   throw new Error("openapi/payments.yaml Payment must not require review for every status");

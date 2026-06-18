@@ -7,7 +7,6 @@ export const PAYMENT_STATUSES = [
 ] as const;
 
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
-export type NonCapturablePaymentStatus = Exclude<PaymentStatus, "authorized">;
 
 export const PAYMENT_REVIEW_REASONS = [
   "velocity_check",
@@ -46,14 +45,6 @@ export type PaymentEvent = PaymentEventInput & {
   occurredAt: string;
 };
 
-export type CaptureBlockedResponse = {
-  code: "capture_blocked";
-  reason: "payment_under_review" | "payment_not_authorized";
-  message: string;
-  paymentId: string;
-  review?: PaymentReviewHold;
-};
-
 export function verifySession(
   token: string,
   audience: string
@@ -78,30 +69,6 @@ export function verifySession(
 
 export function canCapturePayment(status: PaymentStatus): boolean {
   return status === "authorized";
-}
-
-export function buildCaptureBlockedResponse(
-  paymentId: string,
-  status: NonCapturablePaymentStatus,
-  review?: PaymentReviewHold
-): CaptureBlockedResponse {
-  if (canCapturePayment(status)) {
-    throw new Error(`Payment ${paymentId} cannot be blocked while authorized`);
-  }
-
-  const response: CaptureBlockedResponse = {
-    code: "capture_blocked",
-    reason:
-      status === "under_review" ? "payment_under_review" : "payment_not_authorized",
-    message: `Payment ${paymentId} cannot be captured in status ${status}`,
-    paymentId
-  };
-
-  if (review !== undefined) {
-    response.review = review;
-  }
-
-  return response;
 }
 
 export function buildPaymentEvent(input: PaymentEventInput): PaymentEvent {
