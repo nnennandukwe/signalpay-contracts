@@ -130,6 +130,22 @@ describe("SignalPay shared contracts", () => {
     expect("review" in response).toBe(false);
   });
 
+  it("rejects under_review blocked responses without review metadata", () => {
+    expect(() =>
+      buildCaptureBlockedResponse("pay_9x8", "under_review" as never)
+    ).toThrow(/requires review details/i);
+  });
+
+  it("rejects blocked responses that include review metadata when not under review", () => {
+    expect(() =>
+      buildCaptureBlockedResponse("pay_9x8", "pending" as never, {
+        reviewId: "rev_velocity_1",
+        reason: "velocity_check",
+        requestedAt: "2026-06-18T16:00:00Z"
+      } as never)
+    ).toThrow(/must not include review details/i);
+  });
+
   it("rejects blocked responses for capturable payments", () => {
     expect(() =>
       buildCaptureBlockedResponse("pay_9x8", "authorized" as never)

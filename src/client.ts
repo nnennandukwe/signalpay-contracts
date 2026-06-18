@@ -88,11 +88,33 @@ export function canCapturePayment(status: PaymentStatus): boolean {
 
 export function buildCaptureBlockedResponse(
   paymentId: string,
+  status: "under_review",
+  review: PaymentReviewHold
+): CaptureBlockedResponse;
+export function buildCaptureBlockedResponse(
+  paymentId: string,
+  status: Exclude<NonCapturablePaymentStatus, "under_review">,
+  review?: never
+): CaptureBlockedResponse;
+export function buildCaptureBlockedResponse(
+  paymentId: string,
   status: NonCapturablePaymentStatus,
   review?: PaymentReviewHold
 ): CaptureBlockedResponse {
   if (canCapturePayment(status)) {
     throw new Error(`Payment ${paymentId} cannot be blocked while authorized`);
+  }
+
+  if (status === "under_review" && review === undefined) {
+    throw new Error(
+      `Payment ${paymentId} is under review and requires review details to be returned`
+    );
+  }
+
+  if (status !== "under_review" && review !== undefined) {
+    throw new Error(
+      `Payment ${paymentId} is not under review and must not include review details`
+    );
   }
 
   const response: CaptureBlockedResponse = {
@@ -103,8 +125,8 @@ export function buildCaptureBlockedResponse(
     paymentId
   };
 
-  if (review !== undefined) {
-    response.review = review;
+  if (status === "under_review") {
+    response.review = review!;
   }
 
   return response;
