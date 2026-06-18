@@ -13,6 +13,11 @@ export type SessionPrincipal = {
   scopes: string[];
 };
 
+export type SessionVerificationRequest = {
+  token: string;
+  audience: string;
+};
+
 export type PaymentEventInput = {
   paymentId: string;
   customerId: string;
@@ -27,9 +32,10 @@ export type PaymentEvent = PaymentEventInput & {
 };
 
 export function verifySession(
-  token: string,
-  audience: string
+  request: SessionVerificationRequest
 ): SessionPrincipal {
+  const { token, audience } = request;
+
   if (!token.startsWith("sp_live_")) {
     throw new Error("session token must use the live SignalPay token prefix");
   }

@@ -7,7 +7,10 @@ import {
 
 describe("SignalPay shared contracts", () => {
   it("verifies service sessions for a specific audience", () => {
-    const principal = verifySession("sp_live_payments_reader", "payments-api");
+    const principal = verifySession({
+      token: "sp_live_payments_reader",
+      audience: "payments-api"
+    });
 
     expect(principal).toEqual({
       subject: "payments_reader",
@@ -18,7 +21,10 @@ describe("SignalPay shared contracts", () => {
 
   it("rejects sessions that do not target the requested audience", () => {
     expect(() =>
-      verifySession("sp_live_payments_reader", "settlement-worker")
+      verifySession({
+        token: "sp_live_payments_reader",
+        audience: "settlement-worker"
+      })
     ).toThrow(/audience/);
   });
 
