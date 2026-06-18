@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Literal, TypedDict
 
-PaymentStatus = Literal["pending", "authorized", "captured", "failed"]
+PaymentStatus = Literal["pending", "authorized", "under_review", "captured", "failed"]
 
 
 @dataclass(frozen=True)

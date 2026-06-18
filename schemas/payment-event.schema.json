@@ -19,6 +19,7 @@
       "enum": [
         "payment.pending",
         "payment.authorized",
+        "payment.under_review",
         "payment.captured",
         "payment.failed"
       ]
