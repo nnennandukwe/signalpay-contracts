@@ -95,16 +95,21 @@ export function buildCaptureBlockedResponse(
 }
 
 export function buildPaymentEvent(input: PaymentEventInput): PaymentEvent {
-  return {
+  const event: PaymentEvent = {
     type: `payment.${input.status}`,
     paymentId: input.paymentId,
     customerId: input.customerId,
     amount: input.amount,
     currency: input.currency,
     status: input.status,
-    review: input.review,
     occurredAt: new Date().toISOString()
   };
+
+  if (input.review != null) {
+    event.review = input.review;
+  }
+
+  return event;
 }
 
 export function buildReviewHoldEvent(

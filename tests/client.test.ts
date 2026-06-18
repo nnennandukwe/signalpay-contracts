@@ -68,6 +68,7 @@ describe("SignalPay shared contracts", () => {
       currency: "USD",
       status: "authorized"
     });
+    expect("review" in event).toBe(false);
     expect(event.occurredAt).toMatch(
       /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/
     );
