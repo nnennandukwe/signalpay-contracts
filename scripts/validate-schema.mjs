@@ -7,6 +7,7 @@ const openApi = fs.readFileSync(
   new URL("../openapi/payments.yaml", import.meta.url),
   "utf8"
 );
+const openApiLines = openApi.split(/\r?\n/);
 
 const expectedStatuses = [
   "pending",
@@ -31,19 +32,50 @@ function assertArrayEqual(actual, expected, label) {
   }
 }
 
-function openApiSchemaLines(schemaName) {
-  const lines = openApi.split(/\r?\n/);
-  const start = lines.findIndex((line) => line === `    ${schemaName}:`);
+function assertArrayIncludes(actual, expectedValue, label) {
+  if (!actual.includes(expectedValue)) {
+    throw new Error(
+      `${label} must include ${expectedValue}, got ${JSON.stringify(actual)}`
+    );
+  }
+}
+
+function indentationOf(line) {
+  return line.match(/^\s*/)?.[0].length ?? 0;
+}
+
+function normalizeYamlKey(line) {
+  return line.trim().replace(/:$/, "").replace(/^["']|["']$/g, "");
+}
+
+function normalizeYamlValue(value) {
+  return value.trim().replace(/^["']|["']$/g, "");
+}
+
+function blockLinesWithin(lines, header) {
+  const start = lines.findIndex((line) => normalizeYamlKey(line) === header);
 
   if (start === -1) {
-    throw new Error(`openapi/payments.yaml must define ${schemaName}`);
+    return [];
   }
 
+  const startIndent = indentationOf(lines[start]);
   const end = lines.findIndex(
-    (line, index) => index > start && /^    [A-Za-z][A-Za-z0-9]*:$/.test(line)
+    (line, index) =>
+      index > start && line.trim() !== "" && indentationOf(line) <= startIndent
   );
 
   return lines.slice(start, end === -1 ? lines.length : end);
+}
+
+function openApiSchemaLines(schemaName) {
+  const lines = blockLinesWithin(openApiLines, schemaName);
+
+  if (lines.length === 0) {
+    throw new Error(`openapi/payments.yaml must define ${schemaName}`);
+  }
+
+  return lines;
 }
 
 function openApiEnumValues(schemaName) {
@@ -60,7 +92,7 @@ function openApiEnumValues(schemaName) {
     if (!trimmed.startsWith("- ")) {
       break;
     }
-    values.push(trimmed.slice(2));
+    values.push(normalizeYamlValue(trimmed.slice(2)));
   }
 
   return values;
@@ -80,10 +112,26 @@ function openApiRequiredFields(schemaName) {
     if (!trimmed.startsWith("- ")) {
       break;
     }
-    fields.push(trimmed.slice(2));
+    fields.push(normalizeYamlValue(trimmed.slice(2)));
   }
 
   return fields;
+}
+
+function openApiResponseCodes(path, method) {
+  const pathLines = blockLinesWithin(openApiLines, path);
+  const methodLines = blockLinesWithin(pathLines, method);
+  const responseLines = blockLinesWithin(methodLines, "responses");
+
+  if (responseLines.length === 0) {
+    throw new Error(
+      `openapi/payments.yaml ${method.toUpperCase()} ${path} must define responses`
+    );
+  }
+
+  return responseLines
+    .map((line) => normalizeYamlKey(line))
+    .filter((key) => /^\d{3}$/.test(key));
 }
 
 const required = new Set(schema.required ?? []);
@@ -134,6 +182,16 @@ assertArrayEqual(
   openApiRequiredFields("CaptureBlockedResponse"),
   ["code", "reason", "message", "paymentId"],
   "openapi/payments.yaml CaptureBlockedResponse required fields"
+);
+assertArrayIncludes(
+  openApiResponseCodes("/payments/{paymentId}/capture", "post"),
+  "409",
+  "openapi/payments.yaml capture response codes"
+);
+assertArrayEqual(
+  openApiRequiredFields("PaymentReviewHoldResponse"),
+  ["payment"],
+  "openapi/payments.yaml PaymentReviewHoldResponse required fields"
 );
 
 if (openApiRequiredFields("Payment").includes("review")) {

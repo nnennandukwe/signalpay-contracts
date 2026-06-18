@@ -134,12 +134,9 @@ components:
       type: object
       required:
         - payment
-        - review
       properties:
         payment:
           $ref: "#/components/schemas/Payment"
-        review:
-          $ref: "#/components/schemas/PaymentReviewHold"
     CaptureBlockedResponse:
       type: object
       required:

@@ -108,7 +108,7 @@ describe("SignalPay shared contracts", () => {
     expect(response).toEqual({
       code: "capture_blocked",
       reason: "payment_under_review",
-      message: "Payment pay_9x8 cannot be captured while under_review",
+      message: "Payment pay_9x8 cannot be captured in status under_review",
       paymentId: "pay_9x8",
       review: {
         reviewId: "rev_velocity_1",
@@ -124,9 +124,15 @@ describe("SignalPay shared contracts", () => {
     expect(response).toEqual({
       code: "capture_blocked",
       reason: "payment_not_authorized",
-      message: "Payment pay_9x8 cannot be captured while pending",
+      message: "Payment pay_9x8 cannot be captured in status pending",
       paymentId: "pay_9x8"
     });
     expect("review" in response).toBe(false);
+  });
+
+  it("rejects blocked responses for capturable payments", () => {
+    expect(() =>
+      buildCaptureBlockedResponse("pay_9x8", "authorized" as never)
+    ).toThrow(/authorized/);
   });
 });

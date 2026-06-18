@@ -7,6 +7,7 @@ export const PAYMENT_STATUSES = [
 ] as const;
 
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+export type NonCapturablePaymentStatus = Exclude<PaymentStatus, "authorized">;
 
 export const PAYMENT_REVIEW_REASONS = [
   "velocity_check",
@@ -81,14 +82,18 @@ export function canCapturePayment(status: PaymentStatus): boolean {
 
 export function buildCaptureBlockedResponse(
   paymentId: string,
-  status: PaymentStatus,
+  status: NonCapturablePaymentStatus,
   review?: PaymentReviewHold
 ): CaptureBlockedResponse {
+  if (canCapturePayment(status)) {
+    throw new Error(`Payment ${paymentId} cannot be blocked while authorized`);
+  }
+
   const response: CaptureBlockedResponse = {
     code: "capture_blocked",
     reason:
       status === "under_review" ? "payment_under_review" : "payment_not_authorized",
-    message: `Payment ${paymentId} cannot be captured while ${status}`,
+    message: `Payment ${paymentId} cannot be captured in status ${status}`,
     paymentId
   };
 
