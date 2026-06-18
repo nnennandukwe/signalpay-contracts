@@ -6,6 +6,7 @@ SignalPay services use this repository as the source of truth for:
 
 - payment API shapes in `openapi/payments.yaml`
 - payment event payloads in `schemas/payment-event.schema.json`
+- manual review hold metadata for payments requiring operator review
 - TypeScript client primitives in `src/client.ts`
 - Python client primitives in `python/signalpay_contracts/client.py`
 - shared image publishing output names in `actions/publish-image/action.yml`
@@ -17,7 +18,8 @@ The payment API and event contracts are consumed by independent services. Compat
 Current compatibility commitments:
 
 - Payment events expose `customerId` as a top-level field.
-- Payment statuses are `pending`, `authorized`, `captured`, and `failed`.
+- Payment statuses are `pending`, `authorized`, `under_review`, `captured`, and `failed`.
+- `under_review` payment responses expose `reviewId`, `reason`, and `requestedAt` in `review`.
 - The shared image publishing action exposes `image_digest` as its output.
 - Service sessions are verified for the `payments-api` audience.
 
