@@ -16,7 +16,12 @@
   "$defs": {
     "paymentReviewReason": {
       "type": "string",
-      "enum": ["velocity_check", "manual_kyc", "sanctions_review"]
+      "enum": [
+        "velocity_check",
+        "manual_kyc",
+        "duplicate_capture",
+        "sanctions_review"
+      ]
     },
     "paymentReviewHold": {
       "type": "object",
@@ -51,6 +56,7 @@
       "enum": [
         "payment.pending",
         "payment.authorized",
+        "payment.under_review",
         "payment.captured",
         "payment.failed"
       ]

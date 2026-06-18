@@ -47,6 +47,7 @@ export type PaymentEvent = PaymentEventInput & {
 
 export type CaptureBlockedResponse = {
   code: "capture_blocked";
+  paymentId: string;
   reason: "payment_under_review" | "payment_not_authorized";
   message: string;
   review?: PaymentReviewHold;
@@ -75,7 +76,7 @@ export function verifySession(
 }
 
 export function canCapturePayment(status: PaymentStatus): boolean {
-  return status === "authorized" || status === "under_review";
+  return status === "authorized";
 }
 
 export function buildCaptureBlockedResponse(
@@ -85,6 +86,7 @@ export function buildCaptureBlockedResponse(
 ): CaptureBlockedResponse {
   return {
     code: "capture_blocked",
+    paymentId,
     reason:
       status === "under_review" ? "payment_under_review" : "payment_not_authorized",
     message: `Payment ${paymentId} cannot be captured while ${status}`,

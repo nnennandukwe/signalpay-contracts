@@ -5,7 +5,12 @@ from datetime import datetime, timezone
 from typing import Literal, TypedDict
 
 PaymentStatus = Literal["pending", "authorized", "under_review", "captured", "failed"]
-PaymentReviewReason = Literal["velocity_check", "manual_kyc", "duplicate_capture"]
+PaymentReviewReason = Literal[
+    "velocity_check",
+    "manual_kyc",
+    "duplicate_capture",
+    "sanctions_review",
+]
 
 
 class PaymentReviewHoldRequired(TypedDict):

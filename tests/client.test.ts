@@ -47,6 +47,7 @@ describe("SignalPay shared contracts", () => {
 
   it("checks basic capture eligibility states", () => {
     expect(canCapturePayment("authorized")).toBe(true);
+    expect(canCapturePayment("under_review")).toBe(false);
     expect(canCapturePayment("pending")).toBe(false);
   });
 
@@ -105,6 +106,7 @@ describe("SignalPay shared contracts", () => {
 
     expect(response).toEqual({
       code: "capture_blocked",
+      paymentId: "pay_9x8",
       reason: "payment_under_review",
       message: "Payment pay_9x8 cannot be captured while under_review",
       review: {

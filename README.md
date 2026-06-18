@@ -18,7 +18,7 @@ The payment API and event contracts are consumed by independent services. Compat
 Current compatibility commitments:
 
 - Payment events expose `customerId` as a top-level field.
-- Payment statuses are `pending`, `authorized`, `captured`, and `failed`.
+- Payment statuses are `pending`, `authorized`, `under_review`, `captured`, and `failed`.
 - Manual review holds expose `reviewId`, `reason`, and `requestedAt` when a payment requires operator review.
 - The shared image publishing action exposes `image_digest` as its output.
 - Service sessions are verified for the `payments-api` audience.

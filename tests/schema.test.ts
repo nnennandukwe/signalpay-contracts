@@ -32,6 +32,7 @@ describe("payment event schema", () => {
     expect(paymentEventSchema.$defs.paymentReviewReason.enum).toEqual([
       "velocity_check",
       "manual_kyc",
+      "duplicate_capture",
       "sanctions_review"
     ]);
   });

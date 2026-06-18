@@ -47,36 +47,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment"
-        "409":
-          description: Payment cannot be captured while review is required.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/CaptureBlockedResponse"
-  /payments/{paymentId}/review-holds:
-    post:
-      operationId: createPaymentReviewHold
-      summary: Put a payment into manual review.
-      parameters:
-        - name: paymentId
-          in: path
-          required: true
-          schema:
-            type: string
-            pattern: "^pay_"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/PaymentReviewHoldRequest"
-      responses:
-        "201":
-          description: Review hold created.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaymentReviewHoldResponse"
 components:
   schemas:
     PaymentStatus:
@@ -91,6 +61,7 @@ components:
       type: string
       enum:
         - velocity_check
+        - manual_kyc
         - duplicate_capture
         - sanctions_review
     PaymentReviewHold:
@@ -144,6 +115,7 @@ components:
         - code
         - message
         - paymentId
+        - reason
       properties:
         code:
           type: string
@@ -153,6 +125,13 @@ components:
         paymentId:
           type: string
           pattern: "^pay_"
+        reason:
+          type: string
+          enum:
+            - payment_under_review
+            - payment_not_authorized
+        review:
+          $ref: "#/components/schemas/PaymentReviewHold"
     Payment:
       type: object
       required:
@@ -161,7 +140,6 @@ components:
         - amount
         - currency
         - status
-        - review
       properties:
         paymentId:
           type: string
